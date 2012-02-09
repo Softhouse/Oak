@@ -19,12 +19,13 @@
 
 package se.softhouse.garden.oak.statement;
 
-import se.softhouse.garden.oak.DecisionEngine;
-import se.softhouse.garden.oak.model.AMap;
 import net.entropysoft.transmorph.ConverterException;
 import net.entropysoft.transmorph.DefaultConverters;
 import net.entropysoft.transmorph.Transmorph;
 import net.entropysoft.transmorph.utils.NumberComparator;
+import se.softhouse.garden.oak.DecisionEngine;
+import se.softhouse.garden.oak.model.AMap;
+import se.softhouse.garden.oak.model.AParameterName;
 
 /**
  * @author Mikael Svahn
@@ -36,7 +37,7 @@ public class StatementCompare extends AbstractStatement {
 		LT, LE, EQ, GE, GT
 	};
 
-	private String name;
+	private String[] name;
 	private Number value;
 	private NumberComparator nc = new NumberComparator();
 	private OP op;
@@ -45,13 +46,13 @@ public class StatementCompare extends AbstractStatement {
 	public StatementCompare() {
 	}
 
-	public StatementCompare(String name, Number value, OP op) {
+	public StatementCompare(String[] name, Number value, OP op) {
 		this.name = name;
 		this.value = value;
 		this.op = op;
 	}
 
-	public void setName(String name) {
+	public void setName(String[] name) {
 		this.name = name;
 	}
 
@@ -65,7 +66,10 @@ public class StatementCompare extends AbstractStatement {
 
 	@Override
 	public boolean execute(AMap doc, DecisionEngine actionEngine) {
-		Object parameter = doc.getParameter(this.name);
+		Object parameter = doc.getParameter(new AParameterName(this.name));
+		if (parameter == null) {
+			return false;
+		}
 		Number n = null;
 		if (parameter instanceof Number) {
 			n = (Number) parameter;

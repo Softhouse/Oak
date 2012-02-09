@@ -17,35 +17,13 @@
  * SOFTWARE.
  */
 
-package se.softhouse.garden.oak.model;
-
-import java.util.ArrayList;
-import java.util.List;
+package se.softhouse.garden.oak;
 
 /**
- * @author Mikael Svahn
+ * @author mis
  * 
  */
-public class ABasicList implements AList {
-
-	protected List<AMap> list = new ArrayList<AMap>();
-
-	public ABasicList() {
-	}
-
-	@Override
-	public AMap create() {
-		return new ABasicMap();
-	}
-
-	@Override
-	public void add(AMap map) {
-		this.list.add(map);
-	}
-
-	@Override
-	public List<AMap> asList() {
-		return this.list;
-	}
+public class Constants {
+	public static final String PARAM_SEPARATOR = "/";
 
 }

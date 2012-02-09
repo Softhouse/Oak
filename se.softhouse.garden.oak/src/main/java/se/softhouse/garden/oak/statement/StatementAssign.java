@@ -21,6 +21,7 @@ package se.softhouse.garden.oak.statement;
 
 import se.softhouse.garden.oak.DecisionEngine;
 import se.softhouse.garden.oak.model.AMap;
+import se.softhouse.garden.oak.model.AParameterName;
 
 /**
  * @author Mikael Svahn
@@ -28,19 +29,19 @@ import se.softhouse.garden.oak.model.AMap;
  */
 public class StatementAssign extends AbstractStatement {
 
-	protected String key;
+	protected String[] name;
 	protected Object value;
 
 	public StatementAssign() {
 	}
 
-	public StatementAssign(String key, Object value) {
-		this.key = key;
+	public StatementAssign(String[] name, Object value) {
+		this.name = name;
 		this.value = value;
 	}
 
-	public void setKey(String key) {
-		this.key = key;
+	public void setKey(String[] name) {
+		this.name = name;
 	}
 
 	public void setValue(Object value) {
@@ -49,7 +50,7 @@ public class StatementAssign extends AbstractStatement {
 
 	@Override
 	public boolean execute(AMap doc, DecisionEngine actionEngine) {
-		doc.setParameter(this.key, this.value);
+		doc.setParameter(new AParameterName(this.name), this.value);
 		return true;
 	}
 

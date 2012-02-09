@@ -17,10 +17,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import se.softhouse.garden.oak.DecisionEngine;
-import se.softhouse.garden.oak.ExcelDecisionTableBuilder;
 import se.softhouse.garden.oak.model.ABasicDocument;
 import se.softhouse.garden.oak.model.ABasicList;
+import se.softhouse.garden.oak.model.ADocument;
 import se.softhouse.garden.oak.model.AMap;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -47,7 +46,7 @@ public class TestRules {
 		DecisionEngine engine = new DecisionEngine();
 		ExcelDecisionTableBuilder builder = new ExcelDecisionTableBuilder();
 		builder.load("test.xlsx", engine);
-		AMap doc = new ABasicDocument();
+		ADocument doc = new ABasicDocument();
 		doc.setParameter("C1", 2);
 		doc.setParameter("C2", "qwe");
 		doc.setParameter("C3", false);

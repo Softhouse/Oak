@@ -19,17 +19,10 @@
 
 package se.softhouse.garden.oak.model;
 
-
 /**
  * @author Mikael Svahn
  * 
  */
 public interface ADocument extends AMap {
-
-	@Override
-	Object getParameter(String key);
-
-	@Override
-	void setParameter(String key, Object value);
 
 }

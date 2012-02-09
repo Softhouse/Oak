@@ -25,10 +25,15 @@ package se.softhouse.garden.oak.model;
  */
 public interface AMap {
 
-	Object getParameter(String key);
+	Object getParameter(AParameterName name);
 
-	void setParameter(String key, Object value);
+	void setParameter(AParameterName name, Object value);
 
-	AList createList();
+	AList createList(AParameterName name);
 
+	Object getParameter(String name);
+
+	void setParameter(String name, Object value);
+
+	int size();
 }

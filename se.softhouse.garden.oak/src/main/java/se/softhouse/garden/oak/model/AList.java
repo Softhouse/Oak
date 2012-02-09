@@ -27,7 +27,9 @@ import java.util.List;
  */
 public interface AList {
 
-	AMap add();
+	AMap create();
+
+	void add(AMap map);
 
 	List<AMap> asList();
 

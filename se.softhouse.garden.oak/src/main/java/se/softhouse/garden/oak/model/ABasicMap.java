@@ -19,9 +19,17 @@
 
 package se.softhouse.garden.oak.model;
 
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
+import se.softhouse.garden.oak.Constants;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 
 /**
  * @author Mikael Svahn
@@ -29,21 +37,84 @@ import java.util.Map;
  */
 public class ABasicMap implements AMap {
 
+	private static final Gson gson;
+
+	static {
+		GsonBuilder builder = new GsonBuilder();
+		builder.registerTypeAdapter(ABasicMap.class, new ABasicMapSerializer());
+		builder.registerTypeAdapter(ABasicList.class, new ABasicListSerializer());
+		gson = builder.create();
+	}
+
 	protected Map<String, Object> map = new HashMap<String, Object>();
 
 	@Override
-	public Object getParameter(String key) {
-		return this.map.get(key);
+	public Object getParameter(AParameterName name) {
+		String key = name.next();
+		Object value = this.map.get(key);
+		if (!name.hasMore()) {
+			return value;
+		} else if (value instanceof AMap) {
+			return ((AMap) value).getParameter(name);
+		}
+		return null;
 	}
 
 	@Override
-	public void setParameter(String key, Object value) {
-		this.map.put(key, value);
+	public void setParameter(AParameterName name, Object value) {
+		String key = name.next();
+		if (!name.hasMore()) {
+			this.map.put(key, value);
+		} else {
+			Object submap = this.map.get(key);
+			if (submap instanceof AMap) {
+				((AMap) submap).setParameter(name, value);
+			} else if (submap == null) {
+				submap = new ABasicMap();
+				this.map.put(key, submap);
+				((AMap) submap).setParameter(name, value);
+			}
+		}
 	}
 
 	@Override
-	public AList createList() {
-		return new ABasicList();
+	public AList createList(AParameterName name) {
+		ABasicList list = new ABasicList();
+		setParameter(name, list);
+		return list;
 	}
 
+	@Override
+	public int size() {
+		return this.map.size();
+	}
+
+	@Override
+	public Object getParameter(String name) {
+		return getParameter(new AParameterName(name.split(Constants.PARAM_SEPARATOR)));
+	}
+
+	@Override
+	public void setParameter(String name, Object value) {
+		setParameter(new AParameterName(name.split(Constants.PARAM_SEPARATOR)), value);
+	}
+
+	@Override
+	public String toString() {
+		return gson.toJson(this.map);
+	}
+
+	private static class ABasicMapSerializer implements JsonSerializer<ABasicMap> {
+		@Override
+		public JsonElement serialize(ABasicMap src, Type typeOfSrc, JsonSerializationContext context) {
+			return context.serialize(src.map);
+		}
+	}
+
+	private static class ABasicListSerializer implements JsonSerializer<ABasicList> {
+		@Override
+		public JsonElement serialize(ABasicList src, Type typeOfSrc, JsonSerializationContext context) {
+			return context.serialize(src.list);
+		}
+	}
 }

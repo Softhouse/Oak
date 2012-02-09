@@ -20,7 +20,6 @@
 package se.softhouse.garden.oak.model;
 
 
-
 /**
  * @author Mikael Svahn
  * 

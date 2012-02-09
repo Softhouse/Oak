@@ -19,33 +19,28 @@
 
 package se.softhouse.garden.oak.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * @author Mikael Svahn
+ * @author mis
  * 
  */
-public class ABasicList implements AList {
+public class AParameterName {
 
-	protected List<AMap> list = new ArrayList<AMap>();
+	private final String[] names;
+	private int i = 0;
 
-	public ABasicList() {
+	public AParameterName(String[] names) {
+		this.names = names;
 	}
 
-	@Override
-	public AMap create() {
-		return new ABasicMap();
+	public String next() {
+		return this.names[this.i++];
 	}
 
-	@Override
-	public void add(AMap map) {
-		this.list.add(map);
+	public String current() {
+		return this.names[this.i];
 	}
 
-	@Override
-	public List<AMap> asList() {
-		return this.list;
+	public boolean hasMore() {
+		return this.i < this.names.length;
 	}
-
 }

@@ -22,8 +22,8 @@ package se.softhouse.garden.oak;
 import se.softhouse.garden.oak.statement.Statement;
 import se.softhouse.garden.oak.statement.StatementAnd;
 import se.softhouse.garden.oak.statement.StatementCompare;
-import se.softhouse.garden.oak.statement.StatementEquals;
 import se.softhouse.garden.oak.statement.StatementCompare.OP;
+import se.softhouse.garden.oak.statement.StatementEquals;
 
 /**
  * @author Mikael Svahn
@@ -36,26 +36,30 @@ public class DC {
 	}
 
 	public static StatementEquals EQUALS(String name, Object value) {
-		return new StatementEquals(name, value);
+		return new StatementEquals(createName(name), value);
 	}
 
 	public static StatementCompare LT(String name, Number value) {
-		return new StatementCompare(name, value, OP.LT);
+		return new StatementCompare(createName(name), value, OP.LT);
 	}
 
 	public static StatementCompare LE(String name, Number value) {
-		return new StatementCompare(name, value, OP.LE);
+		return new StatementCompare(createName(name), value, OP.LE);
 	}
 
 	public static StatementCompare EQ(String name, Number value) {
-		return new StatementCompare(name, value, OP.EQ);
+		return new StatementCompare(createName(name), value, OP.EQ);
 	}
 
 	public static StatementCompare GE(String name, Number value) {
-		return new StatementCompare(name, value, OP.GE);
+		return new StatementCompare(createName(name), value, OP.GE);
 	}
 
 	public static StatementCompare GT(String name, Number value) {
-		return new StatementCompare(name, value, OP.GT);
+		return new StatementCompare(createName(name), value, OP.GT);
+	}
+
+	private static String[] createName(String name) {
+		return name.split("/");
 	}
 }

@@ -20,7 +20,9 @@
 package se.softhouse.garden.oak.statement;
 
 import se.softhouse.garden.oak.DecisionEngine;
+import se.softhouse.garden.oak.model.ABasicMap;
 import se.softhouse.garden.oak.model.AMap;
+import se.softhouse.garden.oak.model.AParameterName;
 
 /**
  * @author Mikael Svahn
@@ -28,12 +30,14 @@ import se.softhouse.garden.oak.model.AMap;
  */
 public class StatementInvokeTable implements Statement {
 
+	protected String[] name;
 	protected String tableName;
 
 	public StatementInvokeTable() {
 	}
 
-	public StatementInvokeTable(String tableName) {
+	public StatementInvokeTable(String[] name, String tableName) {
+		this.name = name;
 		this.tableName = tableName;
 	}
 
@@ -44,8 +48,16 @@ public class StatementInvokeTable implements Statement {
 
 	@Override
 	public boolean execute(AMap map, DecisionEngine actionEngine) {
+		AMap submap = map;
+		if (this.name != null && this.name.length > 0) {
+			submap = (AMap) map.getParameter(new AParameterName(this.name));
+			if (submap == null) {
+				submap = new ABasicMap();
+				map.setParameter(new AParameterName(this.name), submap);
+			}
+		}
 		if (!this.tableName.isEmpty()) {
-			actionEngine.execute(this.tableName, map);
+			actionEngine.execute(this.tableName, submap);
 		}
 		return true;
 	}
