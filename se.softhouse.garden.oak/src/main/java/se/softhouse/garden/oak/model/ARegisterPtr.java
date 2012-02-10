@@ -19,21 +19,15 @@
 
 package se.softhouse.garden.oak.model;
 
+import java.util.List;
+
 /**
- * @author Mikael Svahn
+ * @author mis
  * 
  */
-public interface AMap {
+public interface ARegisterPtr {
 
-	Object getParameter(AParameterName name);
+	List<Object> getParts();
 
-	void setParameter(AParameterName name, Object value);
-
-	AList createList(AParameterName name);
-
-	Object getParameter(String name);
-
-	void setParameter(String name, Object value);
-
-	int size();
+	boolean isRelative();
 }

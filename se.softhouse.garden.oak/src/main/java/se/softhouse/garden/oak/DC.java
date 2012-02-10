@@ -19,11 +19,13 @@
 
 package se.softhouse.garden.oak;
 
+import se.softhouse.garden.oak.model.ABasicRegisterPtr;
+import se.softhouse.garden.oak.model.ARegisterPtr;
 import se.softhouse.garden.oak.statement.Statement;
-import se.softhouse.garden.oak.statement.StatementAnd;
-import se.softhouse.garden.oak.statement.StatementCompare;
-import se.softhouse.garden.oak.statement.StatementCompare.OP;
-import se.softhouse.garden.oak.statement.StatementEquals;
+import se.softhouse.garden.oak.statement.AndStatement;
+import se.softhouse.garden.oak.statement.CompareStatement;
+import se.softhouse.garden.oak.statement.CompareStatement.OP;
+import se.softhouse.garden.oak.statement.EqualsStatement;
 
 /**
  * @author Mikael Svahn
@@ -31,35 +33,35 @@ import se.softhouse.garden.oak.statement.StatementEquals;
  */
 public class DC {
 
-	public static StatementAnd AND(Statement... conditions) {
-		return new StatementAnd(conditions);
+	public static AndStatement AND(Statement... conditions) {
+		return new AndStatement(conditions);
 	}
 
-	public static StatementEquals EQUALS(String name, Object value) {
-		return new StatementEquals(createName(name), value);
+	public static EqualsStatement EQUALS(String name, Object value) {
+		return new EqualsStatement(createName(name), value);
 	}
 
-	public static StatementCompare LT(String name, Number value) {
-		return new StatementCompare(createName(name), value, OP.LT);
+	public static CompareStatement LT(String name, Number value) {
+		return new CompareStatement(createName(name), value, OP.LT);
 	}
 
-	public static StatementCompare LE(String name, Number value) {
-		return new StatementCompare(createName(name), value, OP.LE);
+	public static CompareStatement LE(String name, Number value) {
+		return new CompareStatement(createName(name), value, OP.LE);
 	}
 
-	public static StatementCompare EQ(String name, Number value) {
-		return new StatementCompare(createName(name), value, OP.EQ);
+	public static CompareStatement EQ(String name, Number value) {
+		return new CompareStatement(createName(name), value, OP.EQ);
 	}
 
-	public static StatementCompare GE(String name, Number value) {
-		return new StatementCompare(createName(name), value, OP.GE);
+	public static CompareStatement GE(String name, Number value) {
+		return new CompareStatement(createName(name), value, OP.GE);
 	}
 
-	public static StatementCompare GT(String name, Number value) {
-		return new StatementCompare(createName(name), value, OP.GT);
+	public static CompareStatement GT(String name, Number value) {
+		return new CompareStatement(createName(name), value, OP.GT);
 	}
 
-	private static String[] createName(String name) {
-		return name.split("/");
+	private static ARegisterPtr createName(String name) {
+		return new ABasicRegisterPtr(name);
 	}
 }

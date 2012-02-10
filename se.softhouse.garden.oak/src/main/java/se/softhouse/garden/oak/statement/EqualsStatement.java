@@ -23,28 +23,28 @@ import net.entropysoft.transmorph.ConverterException;
 import net.entropysoft.transmorph.DefaultConverters;
 import net.entropysoft.transmorph.Transmorph;
 import se.softhouse.garden.oak.DecisionEngine;
-import se.softhouse.garden.oak.model.AMap;
-import se.softhouse.garden.oak.model.AParameterName;
+import se.softhouse.garden.oak.model.ARegister;
+import se.softhouse.garden.oak.model.ARegisterPtr;
 
 /**
  * @author Mikael Svahn
  * 
  */
-public class StatementEquals extends AbstractStatement {
+public class EqualsStatement extends AbstractStatement {
 
-	private String[] name;
+	private ARegisterPtr name;
 	private Object value;
 	Transmorph converter = new Transmorph(new DefaultConverters());
 
-	public StatementEquals() {
+	public EqualsStatement() {
 	}
 
-	public StatementEquals(String[] name, Object value) {
+	public EqualsStatement(ARegisterPtr name, Object value) {
 		this.name = name;
 		this.value = value;
 	}
 
-	public void setName(String[] name) {
+	public void setName(ARegisterPtr name) {
 		this.name = name;
 	}
 
@@ -53,8 +53,8 @@ public class StatementEquals extends AbstractStatement {
 	}
 
 	@Override
-	public boolean execute(AMap doc, DecisionEngine actionEngine) {
-		Object parameter = doc.getParameter(new AParameterName(this.name));
+	public boolean execute(ARegister register, DecisionEngine actionEngine) {
+		Object parameter = register.get(this.name);
 		if (parameter == null) {
 			return false;
 		}

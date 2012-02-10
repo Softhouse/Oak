@@ -20,27 +20,27 @@
 package se.softhouse.garden.oak.statement;
 
 import se.softhouse.garden.oak.DecisionEngine;
-import se.softhouse.garden.oak.model.AMap;
-import se.softhouse.garden.oak.model.AParameterName;
+import se.softhouse.garden.oak.model.ARegister;
+import se.softhouse.garden.oak.model.ARegisterPtr;
 
 /**
  * @author Mikael Svahn
  * 
  */
-public class StatementAssign extends AbstractStatement {
+public class AssignStatement extends AbstractStatement {
 
-	protected String[] name;
+	protected ARegisterPtr name;
 	protected Object value;
 
-	public StatementAssign() {
+	public AssignStatement() {
 	}
 
-	public StatementAssign(String[] name, Object value) {
+	public AssignStatement(ARegisterPtr name, Object value) {
 		this.name = name;
 		this.value = value;
 	}
 
-	public void setKey(String[] name) {
+	public void setKey(ARegisterPtr name) {
 		this.name = name;
 	}
 
@@ -49,8 +49,8 @@ public class StatementAssign extends AbstractStatement {
 	}
 
 	@Override
-	public boolean execute(AMap doc, DecisionEngine actionEngine) {
-		doc.setParameter(new AParameterName(this.name), this.value);
+	public boolean execute(ARegister register, DecisionEngine actionEngine) {
+		register.set(this.name, this.value);
 		return true;
 	}
 

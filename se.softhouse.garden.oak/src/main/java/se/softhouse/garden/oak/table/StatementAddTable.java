@@ -22,9 +22,9 @@ package se.softhouse.garden.oak.table;
 import java.util.List;
 
 import se.softhouse.garden.oak.DecisionEngine;
-import se.softhouse.garden.oak.model.AList;
-import se.softhouse.garden.oak.model.AMap;
-import se.softhouse.garden.oak.model.AParameterName;
+import se.softhouse.garden.oak.model.ARegister;
+import se.softhouse.garden.oak.model.ARegisterPtr;
+import se.softhouse.garden.oak.statement.EmptyStatement;
 import se.softhouse.garden.oak.statement.Statement;
 
 /**
@@ -33,37 +33,34 @@ import se.softhouse.garden.oak.statement.Statement;
  */
 public class StatementAddTable extends StatementTable {
 
-	protected String[] name;
+	protected ARegisterPtr name;
 
 	public StatementAddTable() {
 	}
 
-	public StatementAddTable(String[] name) {
+	public StatementAddTable(ARegisterPtr name) {
 		this.name = name;
 	}
 
-	public StatementAddTable(String[] name, List<Statement> conditions) {
+	public StatementAddTable(ARegisterPtr name, List<Statement> conditions) {
 		this.name = name;
 		this.statements = conditions;
 	}
 
 	@Override
-	public ActionRows execute(AMap map, ActionRows rows, DecisionEngine actionEngine) {
-		AList list = (AList) map.getParameter(new AParameterName(this.name));
-		if (list == null) {
-			list = map.createList(new AParameterName(this.name));
-		}
-
+	public ActionRows execute(ARegister register, ActionRows rows, DecisionEngine actionEngine) {
 		ActionRows resultRows = new ActionRows();
 		resultRows.empty();
 		for (int i = 0; i < this.statements.size(); i++) {
+			Statement statement = this.statements.get(i);
 			if (rows.contains(i)) {
-				AMap submap = list.create();
-				if (this.statements.get(i).execute(submap, actionEngine)) {
+				if (!(statement instanceof EmptyStatement)) {
+					ARegister subreg = register.addListEntry(this.name);
+					if (statement.execute(subreg, actionEngine)) {
+						resultRows.add(i);
+					}
+				} else {
 					resultRows.add(i);
-				}
-				if (submap.size() > 0) {
-					list.add(submap);
 				}
 			}
 		}

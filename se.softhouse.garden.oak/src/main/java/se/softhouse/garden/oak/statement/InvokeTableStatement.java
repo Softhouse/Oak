@@ -20,44 +20,36 @@
 package se.softhouse.garden.oak.statement;
 
 import se.softhouse.garden.oak.DecisionEngine;
-import se.softhouse.garden.oak.model.ABasicMap;
-import se.softhouse.garden.oak.model.AMap;
-import se.softhouse.garden.oak.model.AParameterName;
+import se.softhouse.garden.oak.model.ARegister;
+import se.softhouse.garden.oak.model.ARegisterPtr;
 
 /**
  * @author Mikael Svahn
  * 
  */
-public class StatementInvokeTable implements Statement {
+public class InvokeTableStatement implements Statement {
 
-	protected String[] name;
+	protected ARegisterPtr name;
 	protected String tableName;
 
-	public StatementInvokeTable() {
+	public InvokeTableStatement() {
 	}
 
-	public StatementInvokeTable(String[] name, String tableName) {
+	public InvokeTableStatement(ARegisterPtr name, String tableName) {
 		this.name = name;
 		this.tableName = tableName;
 	}
 
 	@Override
-	public boolean execute(AMap doc) {
+	public boolean execute(ARegister register) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public boolean execute(AMap map, DecisionEngine actionEngine) {
-		AMap submap = map;
-		if (this.name != null && this.name.length > 0) {
-			submap = (AMap) map.getParameter(new AParameterName(this.name));
-			if (submap == null) {
-				submap = new ABasicMap();
-				map.setParameter(new AParameterName(this.name), submap);
-			}
-		}
+	public boolean execute(ARegister register, DecisionEngine actionEngine) {
+		ARegister subreg = this.name == null ? register : register.getSubRegister(this.name);
 		if (!this.tableName.isEmpty()) {
-			actionEngine.execute(this.tableName, submap);
+			actionEngine.execute(this.tableName, subreg);
 		}
 		return true;
 	}

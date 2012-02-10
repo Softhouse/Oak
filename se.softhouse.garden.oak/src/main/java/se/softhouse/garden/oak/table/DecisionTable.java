@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import se.softhouse.garden.oak.DecisionEngine;
-import se.softhouse.garden.oak.model.AMap;
+import se.softhouse.garden.oak.model.ARegister;
 
 /**
  * @author Mikael Svahn
@@ -37,10 +37,10 @@ public class DecisionTable {
 		this.tables.add(table);
 	}
 
-	public void execute(AMap doc, DecisionEngine actionEngine) {
+	public void execute(ARegister register, DecisionEngine actionEngine) {
 		ActionRows rows = new ActionRows();
 		for (ActionTable table : this.tables) {
-			rows = table.execute(doc, rows, actionEngine);
+			rows = table.execute(register, rows, actionEngine);
 			if (rows.containsNone()) {
 				return;
 			}

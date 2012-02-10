@@ -22,8 +22,10 @@ package se.softhouse.garden.oak;
 import java.util.HashMap;
 import java.util.Map;
 
-import se.softhouse.garden.oak.model.AMap;
+import se.softhouse.garden.oak.model.ARegister;
 import se.softhouse.garden.oak.table.DecisionTable;
+
+import com.google.gson.Gson;
 
 /**
  * @author Mikael Svahn
@@ -37,12 +39,18 @@ public class DecisionEngine {
 		this.sets.put(name, set);
 	}
 
-	public boolean execute(String tableSetName, AMap doc) {
+	public boolean execute(String tableSetName, ARegister register) {
 		DecisionTable tableSet = this.sets.get(tableSetName);
 		if (tableSet != null) {
-			tableSet.execute(doc, this);
+			tableSet.execute(register, this);
 			return true;
 		}
 		return false;
 	}
+
+	@Override
+	public String toString() {
+		return new Gson().toJson(this);
+	}
+
 }

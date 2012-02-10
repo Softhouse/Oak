@@ -19,7 +19,7 @@
 
 package se.softhouse.garden.oak.statement;
 
-import se.softhouse.garden.oak.model.AMap;
+import se.softhouse.garden.oak.model.ARegister;
 
 /**
  * @author mis
@@ -28,7 +28,7 @@ import se.softhouse.garden.oak.model.AMap;
 public abstract class AbstractStatement implements Statement {
 
 	@Override
-	public boolean execute(AMap doc) {
-		return this.execute(doc, null);
+	public boolean execute(ARegister register) {
+		return this.execute(register, null);
 	}
 }

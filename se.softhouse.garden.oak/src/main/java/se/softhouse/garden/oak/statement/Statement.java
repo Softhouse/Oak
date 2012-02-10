@@ -20,7 +20,7 @@
 package se.softhouse.garden.oak.statement;
 
 import se.softhouse.garden.oak.DecisionEngine;
-import se.softhouse.garden.oak.model.AMap;
+import se.softhouse.garden.oak.model.ARegister;
 
 /**
  * @author Mikael Svahn
@@ -28,7 +28,7 @@ import se.softhouse.garden.oak.model.AMap;
  */
 public interface Statement {
 
-	boolean execute(AMap doc);
+	boolean execute(ARegister register);
 
-	boolean execute(AMap doc, DecisionEngine actionEngine);
+	boolean execute(ARegister register, DecisionEngine actionEngine);
 }

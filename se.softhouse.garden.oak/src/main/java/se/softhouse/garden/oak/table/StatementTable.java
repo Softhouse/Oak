@@ -23,9 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import se.softhouse.garden.oak.DecisionEngine;
-import se.softhouse.garden.oak.model.AMap;
+import se.softhouse.garden.oak.model.ARegister;
 import se.softhouse.garden.oak.statement.Statement;
-import se.softhouse.garden.oak.statement.StatementAnd;
+import se.softhouse.garden.oak.statement.AndStatement;
 
 /**
  * @author Mikael Svahn
@@ -53,11 +53,11 @@ public class StatementTable implements ActionTable {
 	}
 
 	@Override
-	public ActionRows execute(AMap map, ActionRows rows, DecisionEngine actionEngine) {
+	public ActionRows execute(ARegister register, ActionRows rows, DecisionEngine actionEngine) {
 		ActionRows resultRows = new ActionRows();
 		resultRows.empty();
 		for (int i = 0; i < this.statements.size(); i++) {
-			if (rows.contains(i) && this.statements.get(i).execute(map, actionEngine)) {
+			if (rows.contains(i) && this.statements.get(i).execute(register, actionEngine)) {
 				resultRows.add(i);
 				if (!this.multi) {
 					return resultRows;
@@ -67,7 +67,7 @@ public class StatementTable implements ActionTable {
 		return resultRows;
 	}
 
-	public void addStatement(StatementAnd stmt) {
+	public void addStatement(AndStatement stmt) {
 		this.statements.add(stmt);
 	}
 

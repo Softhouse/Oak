@@ -17,10 +17,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import se.softhouse.garden.oak.model.ABasicDocument;
-import se.softhouse.garden.oak.model.ABasicList;
-import se.softhouse.garden.oak.model.ADocument;
-import se.softhouse.garden.oak.model.AMap;
+import se.softhouse.garden.oak.model.ABasicRegister;
+import se.softhouse.garden.oak.model.ARegister;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/META-INF/spring/applicationContext-test.xml")
@@ -29,16 +27,16 @@ public class TestRules {
 
 	@Test
 	public void testBasicRule() {
-		ABasicDocument doc = new ABasicDocument();
-		doc.setParameter("name", "Micke");
-		doc.setParameter("age", 40);
-		doc.setParameter("salary", new BigDecimal("123.45"));
-		doc.setParameter("house", true);
+		ARegister reg = new ABasicRegister();
+		reg.set("name", "Micke");
+		reg.set("age", 40);
+		reg.set("salary", new BigDecimal("123.45"));
+		reg.set("house", true);
 
-		Assert.assertTrue(EQUALS("name", "Micke").execute(doc));
-		Assert.assertTrue(AND(EQUALS("name", "Micke"), EQUALS("age", "40")).execute(doc));
-		Assert.assertTrue(AND(EQUALS("name", "Micke"), GT("age", 38), LT("age", 42)).execute(doc));
-		Assert.assertTrue(EQUALS("house", true).execute(doc));
+		Assert.assertTrue(EQUALS("name", "Micke").execute(reg));
+		Assert.assertTrue(AND(EQUALS("name", "Micke"), EQUALS("age", "40")).execute(reg));
+		Assert.assertTrue(AND(EQUALS("name", "Micke"), GT("age", 38), LT("age", 42)).execute(reg));
+		Assert.assertTrue(EQUALS("house", true).execute(reg));
 	}
 
 	@Test
@@ -46,41 +44,39 @@ public class TestRules {
 		DecisionEngine engine = new DecisionEngine();
 		ExcelDecisionTableBuilder builder = new ExcelDecisionTableBuilder();
 		builder.load("test.xlsx", engine);
-		ADocument doc = new ABasicDocument();
-		doc.setParameter("C1", 2);
-		doc.setParameter("C2", "qwe");
-		doc.setParameter("C3", false);
-		doc.setParameter("C4", false);
-		doc.setParameter("C5", 1);
-		engine.execute("Main", doc);
-		Assert.assertNull(doc.getParameter("S1"));
+		ARegister reg = new ABasicRegister();
+		reg.set("C1", 2);
+		reg.set("C2", "qwe");
+		reg.set("C3", false);
+		reg.set("C4", false);
+		reg.set("C5", 1);
+		engine.execute("Main", reg);
+		Assert.assertNull(reg.get("S1"));
 		//
-		doc.setParameter("C5", 3);
-		engine.execute("Main", doc);
-		Assert.assertEquals("go", doc.getParameter("S1"));
-		Assert.assertEquals(new BigDecimal(5), doc.getParameter("S2"));
-		Assert.assertEquals(new BigDecimal("6.1"), doc.getParameter("S3"));
-		Assert.assertEquals(new BigDecimal(7), doc.getParameter("S4"));
-		Assert.assertEquals("Saab", doc.getParameter("car"));
-		Assert.assertEquals("white", doc.getParameter("carColor"));
-		Assert.assertNotNull(doc.getParameter("children"));
-		Assert.assertEquals(1, ((ABasicList) doc.getParameter("children")).asList().size());
+		reg.set("C5", 3);
+		engine.execute("Main", reg);
+		Assert.assertEquals("go", reg.get("S1"));
+		Assert.assertEquals(new BigDecimal(5), reg.get("S2"));
+		Assert.assertEquals(new BigDecimal("6.1"), reg.get("S3"));
+		Assert.assertEquals(new BigDecimal(7), reg.get("S4"));
+		Assert.assertEquals("Saab", reg.get("car"));
+		Assert.assertEquals("white", reg.get("carColor"));
+		Assert.assertNotNull(reg.get("children"));
+		Assert.assertEquals(1, ((List) reg.get("children")).size());
 		//
-		doc = new ABasicDocument();
-		doc.setParameter("C1", 3);
-		doc.setParameter("C2", "asd");
-		doc.setParameter("C3", true);
-		doc.setParameter("C4", "true");
-		doc.setParameter("C5", 6);
-		engine.execute("Main", doc);
-		Assert.assertEquals("walk", doc.getParameter("S1"));
-		List<AMap> cars = ((ABasicList) doc.getParameter("cars")).asList();
-		Assert.assertEquals(2, cars.size());
-		Assert.assertEquals("Huyndai", cars.get(0).getParameter("name"));
-		Assert.assertEquals("red", cars.get(0).getParameter("color"));
-		Assert.assertEquals("Volvo", cars.get(1).getParameter("name"));
-		Assert.assertEquals("green", cars.get(1).getParameter("color"));
-		System.out.println(doc);
+		reg = new ABasicRegister();
+		reg.set("C1", 3);
+		reg.set("C2", "asd");
+		reg.set("C3", true);
+		reg.set("C4", "true");
+		reg.set("C5", 6);
+		engine.execute("Main", reg);
+		System.out.println(reg);
+		Assert.assertEquals("walk", reg.get("S1"));
+		Assert.assertEquals("Huyndai", reg.get("cars/0/name"));
+		Assert.assertEquals("red", reg.get("cars/0/color"));
+		Assert.assertEquals("Volvo", reg.get("cars/1/name"));
+		Assert.assertEquals("green", reg.get("cars/1/color"));
 	}
 
 }

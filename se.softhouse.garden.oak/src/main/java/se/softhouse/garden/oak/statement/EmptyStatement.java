@@ -19,41 +19,17 @@
 
 package se.softhouse.garden.oak.statement;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import se.softhouse.garden.oak.DecisionEngine;
-import se.softhouse.garden.oak.model.AMap;
+import se.softhouse.garden.oak.model.ARegister;
 
 /**
- * @author Mikael Svahn
+ * @author mis
  * 
  */
-public class StatementAnd extends AbstractStatement {
-
-	private List<Statement> statements;
-
-	public StatementAnd() {
-		this.statements = new ArrayList<Statement>();
-	}
-
-	public StatementAnd(Statement... conditions) {
-		this.statements = new ArrayList<Statement>();
-		this.statements.addAll(Arrays.asList(conditions));
-	}
-
-	public void addStatement(Statement condition) {
-		this.statements.add(condition);
-	}
+public class EmptyStatement extends AbstractStatement {
 
 	@Override
-	public boolean execute(AMap doc, DecisionEngine actionEngine) {
-		for (Statement condition : this.statements) {
-			if (!condition.execute(doc, actionEngine)) {
-				return false;
-			}
-		}
+	public boolean execute(ARegister register, DecisionEngine actionEngine) {
 		return true;
 	}
 

@@ -24,35 +24,35 @@ import net.entropysoft.transmorph.DefaultConverters;
 import net.entropysoft.transmorph.Transmorph;
 import net.entropysoft.transmorph.utils.NumberComparator;
 import se.softhouse.garden.oak.DecisionEngine;
-import se.softhouse.garden.oak.model.AMap;
-import se.softhouse.garden.oak.model.AParameterName;
+import se.softhouse.garden.oak.model.ARegister;
+import se.softhouse.garden.oak.model.ARegisterPtr;
 
 /**
  * @author Mikael Svahn
  * 
  */
-public class StatementCompare extends AbstractStatement {
+public class CompareStatement extends AbstractStatement {
 
 	public enum OP {
 		LT, LE, EQ, GE, GT
 	};
 
-	private String[] name;
+	private ARegisterPtr name;
 	private Number value;
 	private NumberComparator nc = new NumberComparator();
 	private OP op;
 	Transmorph converter = new Transmorph(new DefaultConverters());
 
-	public StatementCompare() {
+	public CompareStatement() {
 	}
 
-	public StatementCompare(String[] name, Number value, OP op) {
+	public CompareStatement(ARegisterPtr name, Number value, OP op) {
 		this.name = name;
 		this.value = value;
 		this.op = op;
 	}
 
-	public void setName(String[] name) {
+	public void setName(ARegisterPtr name) {
 		this.name = name;
 	}
 
@@ -65,8 +65,8 @@ public class StatementCompare extends AbstractStatement {
 	}
 
 	@Override
-	public boolean execute(AMap doc, DecisionEngine actionEngine) {
-		Object parameter = doc.getParameter(new AParameterName(this.name));
+	public boolean execute(ARegister register, DecisionEngine actionEngine) {
+		Object parameter = register.get(this.name);
 		if (parameter == null) {
 			return false;
 		}

@@ -20,7 +20,7 @@
 package se.softhouse.garden.oak.table;
 
 import se.softhouse.garden.oak.DecisionEngine;
-import se.softhouse.garden.oak.model.AMap;
+import se.softhouse.garden.oak.model.ARegister;
 
 /**
  * @author Mikael Svahn
@@ -28,5 +28,5 @@ import se.softhouse.garden.oak.model.AMap;
  */
 public interface ActionTable {
 
-	ActionRows execute(AMap map, ActionRows rows, DecisionEngine actionEngine);
+	ActionRows execute(ARegister map, ActionRows rows, DecisionEngine actionEngine);
 }

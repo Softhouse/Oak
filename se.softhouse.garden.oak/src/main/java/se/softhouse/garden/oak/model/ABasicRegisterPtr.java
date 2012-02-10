@@ -19,28 +19,57 @@
 
 package se.softhouse.garden.oak.model;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * @author mis
  * 
  */
-public class AParameterName {
+public class ABasicRegisterPtr implements ARegisterPtr {
 
-	private final String[] names;
-	private int i = 0;
+	private List<Object> names;
 
-	public AParameterName(String[] names) {
-		this.names = names;
+	public ABasicRegisterPtr(Integer index) {
+		this.names = new ArrayList<Object>();
+		this.names.add(index);
 	}
 
-	public String next() {
-		return this.names[this.i++];
+	public ABasicRegisterPtr(String path) {
+		this.names = parse(path);
 	}
 
-	public String current() {
-		return this.names[this.i];
+	public ABasicRegisterPtr(ARegisterPtr... ptrs) {
+		this.names = new ArrayList<Object>();
+		for (ARegisterPtr ptr : ptrs) {
+			this.names.addAll(ptr.getParts());
+		}
 	}
 
-	public boolean hasMore() {
-		return this.i < this.names.length;
+	@Override
+	public List<Object> getParts() {
+		return this.names;
 	}
+
+	private List<Object> parse(String path) {
+		List<Object> list = new ArrayList<Object>();
+		if (path != null) {
+			String[] pe = path.split("/");
+			if (pe.length > 0) {
+				list.addAll(Arrays.asList(pe));
+			}
+		}
+		return list;
+	}
+
+	@Override
+	public boolean isRelative() {
+		if (this.names.size() > 0) {
+			Object o = this.names.get(0);
+			return !(o instanceof String && ((String) o).isEmpty());
+		}
+		return true;
+	}
+
 }

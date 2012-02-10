@@ -19,8 +19,6 @@
 
 package se.softhouse.garden.oak;
 
-import static se.softhouse.garden.orchid.bean.NullUtil.NULL;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,13 +37,16 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 
+import se.softhouse.garden.oak.model.ABasicRegisterPtr;
+import se.softhouse.garden.oak.model.ARegisterPtr;
+import se.softhouse.garden.oak.statement.AndStatement;
+import se.softhouse.garden.oak.statement.AssignStatement;
+import se.softhouse.garden.oak.statement.CompareStatement;
+import se.softhouse.garden.oak.statement.CompareStatement.OP;
+import se.softhouse.garden.oak.statement.EmptyStatement;
+import se.softhouse.garden.oak.statement.EqualsStatement;
+import se.softhouse.garden.oak.statement.InvokeTableStatement;
 import se.softhouse.garden.oak.statement.Statement;
-import se.softhouse.garden.oak.statement.StatementAnd;
-import se.softhouse.garden.oak.statement.StatementAssign;
-import se.softhouse.garden.oak.statement.StatementCompare;
-import se.softhouse.garden.oak.statement.StatementCompare.OP;
-import se.softhouse.garden.oak.statement.StatementEquals;
-import se.softhouse.garden.oak.statement.StatementInvokeTable;
 import se.softhouse.garden.oak.table.ActionTable;
 import se.softhouse.garden.oak.table.DecisionTable;
 import se.softhouse.garden.oak.table.StatementAddTable;
@@ -132,31 +133,42 @@ public class ExcelDecisionTableBuilder {
 	        int stop) {
 
 		int size = stop - start;
-		String[][] params = new String[size][];
+		ARegisterPtr[] params = new ARegisterPtr[size];
 		String[] ops = new String[size];
 
 		for (int i = 0; i < size; i++) {
 			ops[i] = opRow.getCell(i + start).getStringCellValue().toLowerCase();
 			Cell cell = paramRow.getCell(i + start);
 			if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
-				params[i] = cell.getStringCellValue().split(Constants.PARAM_SEPARATOR);
+				params[i] = new ABasicRegisterPtr(cell.getStringCellValue());
 			}
 		}
 
 		List<Statement> statements = new ArrayList<Statement>();
 		while (iterator.hasNext()) {
 			Row row = iterator.next();
-			StatementAnd and = new StatementAnd();
+			List<Statement> subStatements = new ArrayList<Statement>();
 			for (int i = 0; i < size; i++) {
 				Cell cell = row.getCell(i + start);
 				if (cell.getCellType() != Cell.CELL_TYPE_BLANK) {
 					StatementBuilder statementCreator = builder.get(ops[i]);
 					if (statementCreator != null) {
-						and.addStatement(statementCreator.build(cell, params[i]));
+						subStatements.add(statementCreator.build(cell, params[i]));
 					}
 				}
 			}
-			statements.add(and);
+			switch (subStatements.size()) {
+				case 0:
+					statements.add(new EmptyStatement());
+					break;
+				case 1:
+					statements.addAll(subStatements);
+					break;
+				default:
+					statements.add(new AndStatement(subStatements));
+					break;
+
+			}
 		}
 		return statements;
 	}
@@ -195,8 +207,8 @@ public class ExcelDecisionTableBuilder {
 		return new StatementBuilder() {
 
 			@Override
-			public Statement build(Cell cell, String[] name) {
-				return new StatementAssign(name, getCellValue(cell.getCellType(), cell));
+			public Statement build(Cell cell, ARegisterPtr name) {
+				return new AssignStatement(name, getCellValue(cell.getCellType(), cell));
 			}
 		};
 	}
@@ -205,8 +217,8 @@ public class ExcelDecisionTableBuilder {
 		return new StatementBuilder() {
 
 			@Override
-			public Statement build(Cell cell, String[] name) {
-				return new StatementEquals(name, getCellValue(cell.getCellType(), cell));
+			public Statement build(Cell cell, ARegisterPtr name) {
+				return new EqualsStatement(name, getCellValue(cell.getCellType(), cell));
 			}
 		};
 	}
@@ -215,8 +227,8 @@ public class ExcelDecisionTableBuilder {
 		return new StatementBuilder() {
 
 			@Override
-			public Statement build(Cell cell, String[] name) {
-				return new StatementCompare(name, getNumericValue(cell.getCellType(), cell), op);
+			public Statement build(Cell cell, ARegisterPtr name) {
+				return new CompareStatement(name, getNumericValue(cell.getCellType(), cell), op);
 			}
 		};
 	}
@@ -225,8 +237,8 @@ public class ExcelDecisionTableBuilder {
 		return new StatementBuilder() {
 
 			@Override
-			public Statement build(Cell cell, String[] name) {
-				return new StatementInvokeTable(name, cell.getStringCellValue());
+			public Statement build(Cell cell, ARegisterPtr name) {
+				return new InvokeTableStatement(name, cell.getStringCellValue());
 			}
 		};
 	}
@@ -262,7 +274,8 @@ public class ExcelDecisionTableBuilder {
 
 			@Override
 			public ActionTable build(Row argsRow, Row paramRow, Row opRow, Iterator<Row> iterator, int start, int stop) {
-				StatementAddTable table = new StatementAddTable(NULL(Cell.class, argsRow.getCell(start)).getStringCellValue().split(Constants.PARAM_SEPARATOR));
+				Cell cell = argsRow.getCell(start);
+				StatementAddTable table = new StatementAddTable(cell == null ? null : new ABasicRegisterPtr(cell.getStringCellValue()));
 				table.setMulti(true);
 				table.setStatements(createStatements(ExcelDecisionTableBuilder.this.statementBuilders, argsRow, paramRow, opRow, iterator, start, stop));
 				return table;
@@ -271,7 +284,7 @@ public class ExcelDecisionTableBuilder {
 	}
 
 	public interface StatementBuilder {
-		Statement build(Cell cell, String[] name);
+		Statement build(Cell cell, ARegisterPtr name);
 	}
 
 	public interface ActionTableBuilder {

@@ -19,10 +19,43 @@
 
 package se.softhouse.garden.oak.model;
 
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
+
 /**
- * @author Mikael Svahn
+ * @author mis
  * 
  */
-public interface ADocument extends AMap {
+public class IteratorIterator<E> implements Iterator<E> {
+
+	private final List<Iterator<E>> iterator;
+	private int current = 0;
+
+	public IteratorIterator(List<Iterator<E>> iterators) {
+		this.iterator = iterators;
+	}
+
+	@Override
+	public boolean hasNext() {
+		return this.iterator.get(this.iterator.size() - 1).hasNext();
+	}
+
+	@Override
+	public E next() {
+		if (this.current < this.iterator.size()) {
+			if (this.iterator.get(this.current).hasNext()) {
+				return this.iterator.get(this.current).next();
+			}
+			this.current++;
+			return next();
+		}
+		throw new NoSuchElementException();
+	}
+
+	@Override
+	public void remove() {
+		this.iterator.get(this.current).remove();
+	}
 
 }
