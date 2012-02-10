@@ -127,8 +127,11 @@ public class ABasicRegister implements ARegister {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	static void setVar(Object parent, Iterator<Object> iterator, Object value) {
-		if (iterator.hasNext()) {
+		while (iterator.hasNext()) {
 			Object key = iterator.next();
+			if ("..".equals(key)) {
+				return;
+			}
 			if (parent instanceof Map) {
 				if (iterator.hasNext()) {
 					Object object = ((Map) parent).get(key);
@@ -156,8 +159,11 @@ public class ABasicRegister implements ARegister {
 
 	@SuppressWarnings("rawtypes")
 	static Object removeVar(Object parent, Iterator<Object> nameIterator) {
-		if (nameIterator.hasNext()) {
+		while (nameIterator.hasNext()) {
 			Object key = nameIterator.next();
+			if ("..".equals(key)) {
+				return null;
+			}
 			if (nameIterator.hasNext()) {
 				if (parent instanceof Map) {
 					return removeVar(((Map) parent).get(key), nameIterator);
@@ -214,6 +220,25 @@ public class ABasicRegister implements ARegister {
 	public Object remove(ARegisterPtr... ptrs) {
 		List<Iterator<Object>> iterators = getIterators(ptrs);
 		return removeVar(this.map, new IteratorIterator<Object>(iterators));
+	}
+
+	@Override
+	public Object evaluate(Object value, ARegisterPtr... ptrs) {
+		if (value instanceof String) {
+			String expr = (String) value;
+			if (expr.startsWith("${") && expr.endsWith("}")) {
+				expr = expr.substring(2, expr.length() - 1);
+				if (ptrs.length == 0) {
+					return get(expr);
+				}
+				ARegisterPtr[] nptrs = new ARegisterPtr[ptrs.length + 1];
+				System.arraycopy(ptrs, 0, nptrs, 0, ptrs.length);
+				nptrs[ptrs.length] = new ABasicRegisterPtr(expr);
+				return get(nptrs);
+
+			}
+		}
+		return value;
 	}
 
 }

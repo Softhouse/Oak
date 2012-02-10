@@ -39,6 +39,7 @@ import org.apache.poi.xssf.usermodel.XSSFCell;
 
 import se.softhouse.garden.oak.model.ABasicRegisterPtr;
 import se.softhouse.garden.oak.model.ARegisterPtr;
+import se.softhouse.garden.oak.statement.AddStatement;
 import se.softhouse.garden.oak.statement.AndStatement;
 import se.softhouse.garden.oak.statement.AssignStatement;
 import se.softhouse.garden.oak.statement.CompareStatement;
@@ -47,6 +48,7 @@ import se.softhouse.garden.oak.statement.EmptyStatement;
 import se.softhouse.garden.oak.statement.EqualsStatement;
 import se.softhouse.garden.oak.statement.InvokeTableStatement;
 import se.softhouse.garden.oak.statement.Statement;
+import se.softhouse.garden.oak.statement.SubStatement;
 import se.softhouse.garden.oak.table.ActionTable;
 import se.softhouse.garden.oak.table.DecisionTable;
 import se.softhouse.garden.oak.table.StatementAddTable;
@@ -64,6 +66,8 @@ public class ExcelDecisionTableBuilder {
 
 	public ExcelDecisionTableBuilder() {
 		this.statementBuilders.put("assign", createAssignStatement());
+		this.statementBuilders.put("add", createAddStatement());
+		this.statementBuilders.put("sub", createSubStatement());
 		this.statementBuilders.put("table", createTableStatement());
 
 		this.conditionBuilders.put("equals", createEqualsStatement());
@@ -209,6 +213,26 @@ public class ExcelDecisionTableBuilder {
 			@Override
 			public Statement build(Cell cell, ARegisterPtr name) {
 				return new AssignStatement(name, getCellValue(cell.getCellType(), cell));
+			}
+		};
+	}
+
+	private StatementBuilder createAddStatement() {
+		return new StatementBuilder() {
+
+			@Override
+			public Statement build(Cell cell, ARegisterPtr name) {
+				return new AddStatement(name, getCellValue(cell.getCellType(), cell));
+			}
+		};
+	}
+
+	private StatementBuilder createSubStatement() {
+		return new StatementBuilder() {
+
+			@Override
+			public Statement build(Cell cell, ARegisterPtr name) {
+				return new SubStatement(name, getCellValue(cell.getCellType(), cell));
 			}
 		};
 	}

@@ -29,6 +29,7 @@ import java.util.List;
  */
 public class ABasicRegisterPtr implements ARegisterPtr {
 
+	private boolean relative = true;
 	private List<Object> names;
 
 	public ABasicRegisterPtr(Integer index) {
@@ -38,6 +39,14 @@ public class ABasicRegisterPtr implements ARegisterPtr {
 
 	public ABasicRegisterPtr(String path) {
 		this.names = parse(path);
+		for (int i = 0; i < this.names.size(); i++) {
+			if ("".equals(this.names.get(i))) {
+				if (i == 0) {
+					this.relative = false;
+				}
+				this.names.remove(i--);
+			}
+		}
 	}
 
 	public ABasicRegisterPtr(ARegisterPtr... ptrs) {
@@ -65,11 +74,7 @@ public class ABasicRegisterPtr implements ARegisterPtr {
 
 	@Override
 	public boolean isRelative() {
-		if (this.names.size() > 0) {
-			Object o = this.names.get(0);
-			return !(o instanceof String && ((String) o).isEmpty());
-		}
-		return true;
+		return this.relative;
 	}
 
 }

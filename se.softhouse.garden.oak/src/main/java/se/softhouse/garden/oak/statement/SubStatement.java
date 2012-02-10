@@ -19,6 +19,11 @@
 
 package se.softhouse.garden.oak.statement;
 
+import java.math.BigDecimal;
+
+import net.entropysoft.transmorph.ConverterException;
+import net.entropysoft.transmorph.DefaultConverters;
+import net.entropysoft.transmorph.Transmorph;
 import se.softhouse.garden.oak.DecisionEngine;
 import se.softhouse.garden.oak.model.ARegister;
 import se.softhouse.garden.oak.model.ARegisterPtr;
@@ -27,15 +32,16 @@ import se.softhouse.garden.oak.model.ARegisterPtr;
  * @author Mikael Svahn
  * 
  */
-public class AssignStatement extends AbstractStatement {
+public class SubStatement extends AbstractStatement {
 
 	protected ARegisterPtr name;
 	protected Object value;
+	Transmorph converter = new Transmorph(new DefaultConverters());
 
-	public AssignStatement() {
+	public SubStatement() {
 	}
 
-	public AssignStatement(ARegisterPtr name, Object value) {
+	public SubStatement(ARegisterPtr name, Object value) {
 		this.name = name;
 		this.value = value;
 	}
@@ -50,8 +56,35 @@ public class AssignStatement extends AbstractStatement {
 
 	@Override
 	public boolean execute(ARegister register, DecisionEngine actionEngine) {
-		register.set(this.name, register.evaluate(this.value));
+		Object parameter = register.get(this.name);
+		if (parameter == null) {
+			return false;
+		}
+		Object val = register.evaluate(this.value);
+		if (val != null) {
+			try {
+				parameter = this.converter.convert(parameter, val.getClass());
+
+				if (parameter instanceof Byte) {
+					parameter = ((Byte) parameter) - ((Byte) val);
+				} else if (parameter instanceof Short) {
+					parameter = ((Short) parameter) - ((Short) val);
+				} else if (parameter instanceof Integer) {
+					parameter = ((Integer) parameter) - ((Integer) val);
+				} else if (parameter instanceof Long) {
+					parameter = ((Long) parameter) - ((Long) val);
+				} else if (parameter instanceof Float) {
+					parameter = ((Float) parameter) - ((Float) val);
+				} else if (parameter instanceof Double) {
+					parameter = ((Double) parameter) - ((Double) val);
+				} else if (parameter instanceof BigDecimal) {
+					parameter = ((BigDecimal) parameter).add((BigDecimal) val);
+				}
+			} catch (ConverterException e) {
+			}
+		}
+
+		register.set(this.name, parameter);
 		return true;
 	}
-
 }

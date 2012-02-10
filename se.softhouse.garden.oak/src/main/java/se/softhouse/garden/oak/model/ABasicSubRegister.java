@@ -75,7 +75,7 @@ public class ABasicSubRegister implements ARegister {
 	}
 
 	private ARegisterPtr[] getPtrs(ARegisterPtr... ptrs) {
-		ARegisterPtr[] nptrs = new ARegisterPtr[ptrs.length];
+		ARegisterPtr[] nptrs = new ARegisterPtr[ptrs.length + 1];
 		System.arraycopy(ptrs, 0, nptrs, 1, ptrs.length);
 		nptrs[0] = this.ptr;
 		return nptrs;
@@ -101,4 +101,8 @@ public class ABasicSubRegister implements ARegister {
 		return this.register.remove(getPtrs(ptrs));
 	}
 
+	@Override
+	public Object evaluate(Object value, ARegisterPtr... ptrs) {
+		return this.register.evaluate(value, getPtrs(ptrs));
+	}
 }

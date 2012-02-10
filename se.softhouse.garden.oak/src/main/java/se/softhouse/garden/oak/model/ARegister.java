@@ -48,4 +48,7 @@ public interface ARegister {
 	Object remove(ARegisterPtr ptr);
 
 	Object remove(ARegisterPtr... ptrs);
+
+	Object evaluate(Object value, ARegisterPtr... ptrs);
+
 }
