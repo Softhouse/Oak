@@ -96,15 +96,18 @@ public class ABasicRegister implements ARegister {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public ARegister addListEntry(ARegisterPtr name) {
+	public ARegister addListEntry(ARegisterPtr... name) {
 		List list = (List) get(name);
 		if (list == null) {
 			list = new ArrayList<Object>();
-			set(name, list);
+			set(list, name);
 		}
 		HashMap<String, Object> map = new HashMap<String, Object>();
 		list.add(map);
-		return new ABasicSubRegister(this, new ABasicRegisterPtr(name, new ABasicRegisterPtr(list.size() - 1)));
+		ARegisterPtr[] nptrs = new ARegisterPtr[name.length + 1];
+		System.arraycopy(name, 0, nptrs, 0, name.length);
+		nptrs[name.length] = new ABasicRegisterPtr(list.size() - 1);
+		return new ABasicSubRegister(this, new ABasicRegisterPtr(nptrs));
 	}
 
 	@SuppressWarnings("rawtypes")

@@ -76,9 +76,12 @@ public class ExcelDecisionTableBuilder {
 		this.conditionBuilders.put("eq", createCompareStatement(OP.EQ));
 		this.conditionBuilders.put("ge", createCompareStatement(OP.GE));
 		this.conditionBuilders.put("gt", createCompareStatement(OP.GT));
+		this.conditionBuilders.put("assign", createAssignStatement());
+		this.conditionBuilders.put("add", createAddStatement());
+		this.conditionBuilders.put("sub", createSubStatement());
 
 		this.tableBuilders.put("condition", createConditionTable(false));
-		this.tableBuilders.put("multicondition", createConditionTable(false));
+		this.tableBuilders.put("multicondition", createConditionTable(true));
 		this.tableBuilders.put("statement", createStatementTable());
 		this.tableBuilders.put("addstatement", createAddStatementTable());
 	}
@@ -154,7 +157,7 @@ public class ExcelDecisionTableBuilder {
 			List<Statement> subStatements = new ArrayList<Statement>();
 			for (int i = 0; i < size; i++) {
 				Cell cell = row.getCell(i + start);
-				if (cell.getCellType() != Cell.CELL_TYPE_BLANK) {
+				if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
 					StatementBuilder statementCreator = builder.get(ops[i]);
 					if (statementCreator != null) {
 						subStatements.add(statementCreator.build(cell, params[i]));

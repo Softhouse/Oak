@@ -82,8 +82,8 @@ public class ABasicSubRegister implements ARegister {
 	}
 
 	@Override
-	public ARegister addListEntry(ARegisterPtr name) {
-		return this.register.addListEntry(new ABasicRegisterPtr(this.ptr, name));
+	public ARegister addListEntry(ARegisterPtr... name) {
+		return this.register.addListEntry(getPtrs(name));
 	}
 
 	@Override

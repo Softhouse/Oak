@@ -78,7 +78,7 @@ public class SubStatement extends AbstractStatement {
 				} else if (parameter instanceof Double) {
 					parameter = ((Double) parameter) - ((Double) val);
 				} else if (parameter instanceof BigDecimal) {
-					parameter = ((BigDecimal) parameter).add((BigDecimal) val);
+					parameter = ((BigDecimal) parameter).subtract((BigDecimal) val);
 				}
 			} catch (ConverterException e) {
 			}

@@ -41,7 +41,7 @@ public interface ARegister {
 
 	ARegister getSubRegister(ARegisterPtr name);
 
-	ARegister addListEntry(ARegisterPtr name);
+	ARegister addListEntry(ARegisterPtr... ptrs);
 
 	Object remove(String name);
 

@@ -52,6 +52,9 @@ public class ABasicRegisterPtr implements ARegisterPtr {
 	public ABasicRegisterPtr(ARegisterPtr... ptrs) {
 		this.names = new ArrayList<Object>();
 		for (ARegisterPtr ptr : ptrs) {
+			if (!ptr.isRelative()) {
+				this.names.clear();
+			}
 			this.names.addAll(ptr.getParts());
 		}
 	}
