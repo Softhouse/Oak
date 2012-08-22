@@ -19,6 +19,9 @@
 
 package se.softhouse.garden.oak.model;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * @author mis
  * 
@@ -104,5 +107,23 @@ public class ABasicSubRegister implements ARegister {
 	@Override
 	public Object evaluate(Object value, ARegisterPtr... ptrs) {
 		return this.register.evaluate(value, getPtrs(ptrs));
+	}
+
+	@Override
+	public int getSize() {
+		return ABasicRegister.getSize(this.register.get(this.ptr));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void removeAll() {
+		Object o = this.register.get(this.ptr);
+		if (o instanceof Map) {
+			((Map<String, Object>) o).clear();
+		} else if (o instanceof List) {
+			((List<Object>) o).clear();
+		} else {
+			this.register.remove(this.ptr);
+		}
 	}
 }

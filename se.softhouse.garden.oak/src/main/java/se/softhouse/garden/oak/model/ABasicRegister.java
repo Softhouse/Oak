@@ -244,4 +244,31 @@ public class ABasicRegister implements ARegister {
 		return value;
 	}
 
+	@Override
+	public int getSize() {
+		return getSize(this.map);
+	}
+
+	@SuppressWarnings("unchecked")
+	static int getSize(Object container) {
+		int size = 0;
+		if (container instanceof Map) {
+			size = ((Map<String, Object>) container).size();
+			for (Object o : ((Map<String, Object>) container).values()) {
+				size += getSize(o);
+			}
+		} else if (container instanceof List) {
+			size = ((List<Object>) container).size();
+			for (Object o : ((List<Object>) container)) {
+				size += getSize(o);
+			}
+		}
+		return size;
+	}
+
+	@Override
+	public void removeAll() {
+		this.map.clear();
+	}
+
 }

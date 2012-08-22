@@ -12,17 +12,10 @@ import java.util.List;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import se.softhouse.garden.oak.model.ABasicRegister;
 import se.softhouse.garden.oak.model.ARegister;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("/META-INF/spring/applicationContext-test.xml")
-@ActiveProfiles("dev")
 public class TestRules {
 
 	@Test

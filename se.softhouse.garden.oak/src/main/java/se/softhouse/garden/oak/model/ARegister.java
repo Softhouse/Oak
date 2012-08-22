@@ -49,6 +49,10 @@ public interface ARegister {
 
 	Object remove(ARegisterPtr... ptrs);
 
+	void removeAll();
+
 	Object evaluate(Object value, ARegisterPtr... ptrs);
+
+	int getSize();
 
 }
