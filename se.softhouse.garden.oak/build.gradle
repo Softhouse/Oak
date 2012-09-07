@@ -1,0 +1,7 @@
+dependencies {
+   	compile 'net.sf.transmorph:transmorph:3.1.1'
+   	compile 'net.sf.opencsv:opencsv:2.0'
+   	compile 'org.apache.poi:poi:3.7'
+   	compile 'org.apache.poi:poi-ooxml:3.7'
+   	compile 'com.google.code.gson:gson:2.1'
+}
