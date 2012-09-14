@@ -58,263 +58,339 @@ import se.softhouse.garden.oak.table.StatementTable;
  * @author Mikael Svahn
  * 
  */
-public class ExcelDecisionTableBuilder {
+public class ExcelDecisionTableBuilder
+{
 
-	protected Map<String, StatementBuilder> statementBuilders = new HashMap<String, ExcelDecisionTableBuilder.StatementBuilder>();
-	protected Map<String, StatementBuilder> conditionBuilders = new HashMap<String, ExcelDecisionTableBuilder.StatementBuilder>();
-	protected Map<String, ActionTableBuilder> tableBuilders = new HashMap<String, ExcelDecisionTableBuilder.ActionTableBuilder>();
+  protected Map<String, StatementBuilder> statementBuilders = new HashMap<String, ExcelDecisionTableBuilder.StatementBuilder>();
+  protected Map<String, StatementBuilder> conditionBuilders = new HashMap<String, ExcelDecisionTableBuilder.StatementBuilder>();
+  protected Map<String, ActionTableBuilder> tableBuilders = new HashMap<String, ExcelDecisionTableBuilder.ActionTableBuilder>();
 
-	public ExcelDecisionTableBuilder() {
-		this.statementBuilders.put("assign", createAssignStatement());
-		this.statementBuilders.put("add", createAddStatement());
-		this.statementBuilders.put("sub", createSubStatement());
-		this.statementBuilders.put("table", createTableStatement());
+  public ExcelDecisionTableBuilder()
+  {
+    this.statementBuilders.put("assign", createAssignStatement());
+    this.statementBuilders.put("add", createAddStatement());
+    this.statementBuilders.put("sub", createSubStatement());
+    this.statementBuilders.put("table", createTableStatement());
 
-		this.conditionBuilders.put("equals", createEqualsStatement());
-		this.conditionBuilders.put("lt", createCompareStatement(OP.LT));
-		this.conditionBuilders.put("le", createCompareStatement(OP.LE));
-		this.conditionBuilders.put("eq", createCompareStatement(OP.EQ));
-		this.conditionBuilders.put("ge", createCompareStatement(OP.GE));
-		this.conditionBuilders.put("gt", createCompareStatement(OP.GT));
-		this.conditionBuilders.put("assign", createAssignStatement());
-		this.conditionBuilders.put("add", createAddStatement());
-		this.conditionBuilders.put("sub", createSubStatement());
+    this.conditionBuilders.put("equals", createEqualsStatement());
+    this.conditionBuilders.put("lt", createCompareStatement(OP.LT));
+    this.conditionBuilders.put("le", createCompareStatement(OP.LE));
+    this.conditionBuilders.put("eq", createCompareStatement(OP.EQ));
+    this.conditionBuilders.put("ge", createCompareStatement(OP.GE));
+    this.conditionBuilders.put("gt", createCompareStatement(OP.GT));
+    this.conditionBuilders.put("assign", createAssignStatement());
+    this.conditionBuilders.put("add", createAddStatement());
+    this.conditionBuilders.put("sub", createSubStatement());
 
-		this.tableBuilders.put("condition", createConditionTable(false));
-		this.tableBuilders.put("multicondition", createConditionTable(true));
-		this.tableBuilders.put("statement", createStatementTable());
-		this.tableBuilders.put("addstatement", createAddStatementTable());
-	}
+    this.tableBuilders.put("condition", createConditionTable(false));
+    this.tableBuilders.put("multicondition", createConditionTable(true));
+    this.tableBuilders.put("statement", createStatementTable());
+    this.tableBuilders.put("addstatement", createAddStatementTable());
+  }
 
-	public void load(String filename, DecisionEngine engine) throws IOException, InvalidFormatException {
-		InputStream inp = new FileInputStream(filename);
+  public void load(InputStream i, DecisionEngine engine) throws InvalidFormatException, IOException
+  {
+    loadFromStream(i, engine);
+  }
 
-		Workbook wb = WorkbookFactory.create(inp);
-		for (int i = 0; i < wb.getNumberOfSheets(); i++) {
-			Sheet sheet = wb.getSheetAt(i);
+  public void load(String filename, DecisionEngine engine) throws IOException, InvalidFormatException
+  {
+    InputStream inp = new FileInputStream(filename);
+    loadFromStream(inp, engine);
+  }
 
-			DecisionTable table = new DecisionTable();
-			List<Integer> tableIndexes = locateActionTables(sheet);
-			for (int k = 0; k < tableIndexes.size() - 1; k++) {
-				table.addTable(create(table, sheet, tableIndexes.get(k), tableIndexes.get(k + 1)));
-			}
+  private void loadFromStream(InputStream is, DecisionEngine engine) throws IOException, InvalidFormatException
+  {
+    if (is == null)
+    {
+      throw new IOException("Unable to find resource.");
+    }
+    Workbook wb = WorkbookFactory.create(is);
+    for (int i = 0; i < wb.getNumberOfSheets(); i++)
+    {
+      Sheet sheet = wb.getSheetAt(i);
 
-			engine.addDecisionTable(sheet.getSheetName(), table);
+      DecisionTable table = new DecisionTable();
+      List<Integer> tableIndexes = locateActionTables(sheet);
+      for (int k = 0; k < tableIndexes.size() - 1; k++)
+      {
+        table.addTable(create(table, sheet, tableIndexes.get(k), tableIndexes.get(k + 1)));
+      }
 
-		}
-	}
+      engine.addDecisionTable(sheet.getSheetName(), table);
 
-	private ActionTable create(DecisionTable decissionTable, Sheet sheet, int start, int stop) throws IOException, InvalidFormatException {
-		Iterator<Row> iterator = sheet.iterator();
-		iterator.next();
-		Row tableTypeRow = iterator.next();
-		Row argsRow = iterator.next();
-		Row paramRow = iterator.next();
-		Row opRow = iterator.next();
-		iterator.next();
+    }
+  }
 
-		Cell cell = tableTypeRow.getCell(start);
-		String tableType = cell.getStringCellValue().toLowerCase();
-		ActionTableBuilder tableBuilder = this.tableBuilders.get(tableType);
-		if (tableBuilder != null) {
-			return tableBuilder.build(argsRow, paramRow, opRow, iterator, start, stop);
-		}
-		return null;
-	}
+  private ActionTable create(DecisionTable decissionTable, Sheet sheet, int start, int stop) throws IOException, InvalidFormatException
+  {
+    Iterator<Row> iterator = sheet.iterator();
+    iterator.next();
+    Row tableTypeRow = iterator.next();
+    Row argsRow = iterator.next();
+    Row paramRow = iterator.next();
+    Row opRow = iterator.next();
+    iterator.next();
 
-	private List<Integer> locateActionTables(Sheet sheet) {
-		List<Integer> indexes = new ArrayList<Integer>();
-		Row tableTypeRow = sheet.getRow(1);
-		Row opRow = sheet.getRow(5);
+    Cell cell = tableTypeRow.getCell(start);
+    String tableType = cell.getStringCellValue().toLowerCase();
+    ActionTableBuilder tableBuilder = this.tableBuilders.get(tableType);
+    if (tableBuilder != null)
+    {
+      return tableBuilder.build(argsRow, paramRow, opRow, iterator, start, stop);
+    }
+    return null;
+  }
 
-		for (int i = tableTypeRow.getFirstCellNum(); i < tableTypeRow.getLastCellNum(); i++) {
-			if (!tableTypeRow.getCell(i).getStringCellValue().isEmpty()) {
-				indexes.add(i);
-			}
-		}
-		indexes.add((int) opRow.getLastCellNum());
-		return indexes;
-	}
+  private List<Integer> locateActionTables(Sheet sheet)
+  {
+    List<Integer> indexes = new ArrayList<Integer>();
+    Row tableTypeRow = sheet.getRow(1);
+    Row opRow = sheet.getRow(5);
 
-	private List<Statement> createStatements(Map<String, StatementBuilder> builder, Row argsRow, Row paramRow, Row opRow, Iterator<Row> iterator, int start,
-	        int stop) {
+    for (int i = tableTypeRow.getFirstCellNum(); i < tableTypeRow.getLastCellNum(); i++)
+    {
+      if (!tableTypeRow.getCell(i).getStringCellValue().isEmpty())
+      {
+        indexes.add(i);
+      }
+    }
+    indexes.add((int) opRow.getLastCellNum());
+    return indexes;
+  }
 
-		int size = stop - start;
-		ARegisterPtr[] params = new ARegisterPtr[size];
-		String[] ops = new String[size];
+  private List<Statement> createStatements(Map<String, StatementBuilder> builder, Row argsRow, Row paramRow, Row opRow, Iterator<Row> iterator, int start, int stop)
+  {
 
-		for (int i = 0; i < size; i++) {
-			ops[i] = opRow.getCell(i + start).getStringCellValue().toLowerCase();
-			Cell cell = paramRow.getCell(i + start);
-			if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
-				params[i] = new ABasicRegisterPtr(cell.getStringCellValue());
-			}
-		}
+    int size = stop - start;
+    ARegisterPtr[] params = new ARegisterPtr[size];
+    String[] ops = new String[size];
 
-		List<Statement> statements = new ArrayList<Statement>();
-		while (iterator.hasNext()) {
-			Row row = iterator.next();
-			List<Statement> subStatements = new ArrayList<Statement>();
-			for (int i = 0; i < size; i++) {
-				Cell cell = row.getCell(i + start);
-				if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
-					StatementBuilder statementCreator = builder.get(ops[i]);
-					if (statementCreator != null) {
-						subStatements.add(statementCreator.build(cell, params[i]));
-					}
-				}
-			}
-			switch (subStatements.size()) {
-				case 0:
-					statements.add(new EmptyStatement());
-					break;
-				case 1:
-					statements.addAll(subStatements);
-					break;
-				default:
-					statements.add(new AndStatement(subStatements));
-					break;
+    for (int i = 0; i < size; i++)
+    {
+      ops[i] = opRow.getCell(i + start).getStringCellValue().toLowerCase();
+      Cell cell = paramRow.getCell(i + start);
+      if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK)
+      {
+        params[i] = new ABasicRegisterPtr(cell.getStringCellValue());
+      }
+    }
 
-			}
-		}
-		return statements;
-	}
+    List<Statement> statements = new ArrayList<Statement>();
+    while (iterator.hasNext())
+    {
+      Row row = iterator.next();
+      List<Statement> subStatements = new ArrayList<Statement>();
+      for (int i = 0; i < size; i++)
+      {
+        Cell cell = row.getCell(i + start);
+        if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK)
+        {
+          StatementBuilder statementCreator = builder.get(ops[i]);
+          if (statementCreator != null)
+          {
+            subStatements.add(statementCreator.build(cell, params[i]));
+          }
+        }
+      }
+      switch (subStatements.size())
+      {
+        case 0:
+          statements.add(new EmptyStatement());
+          break;
+        case 1:
+          statements.addAll(subStatements);
+          break;
+        default:
+          statements.add(new AndStatement(subStatements));
+          break;
 
-	private Object getCellValue(int type, Cell cell) {
-		switch (type) {
-			case Cell.CELL_TYPE_BOOLEAN:
-				return cell.getBooleanCellValue();
-			case Cell.CELL_TYPE_NUMERIC:
-				return getNumericValue(type, cell);
-			case Cell.CELL_TYPE_STRING:
-				return cell.getStringCellValue();
-			case Cell.CELL_TYPE_FORMULA:
-				return getCellValue(cell.getCachedFormulaResultType(), cell);
-		}
-		return null;
-	}
+      }
+    }
+    return statements;
+  }
 
-	private Number getNumericValue(int type, Cell cell) {
-		switch (type) {
-			case Cell.CELL_TYPE_NUMERIC:
-				if (cell instanceof XSSFCell) {
-					String raw = ((XSSFCell) cell).getRawValue();
-					return new BigDecimal(raw);
-				}
-				return cell.getNumericCellValue();
-			case Cell.CELL_TYPE_FORMULA:
-				return getNumericValue(cell.getCachedFormulaResultType(), cell);
-			case Cell.CELL_TYPE_STRING:
-				return new BigDecimal(cell.getStringCellValue());
-		}
-		return BigDecimal.ZERO;
-	}
+  private Object getCellValue(int type, Cell cell)
+  {
+    switch (type)
+    {
+      case Cell.CELL_TYPE_BOOLEAN:
+        return cell.getBooleanCellValue();
+      case Cell.CELL_TYPE_NUMERIC:
+        return getNumericValue(type, cell);
+      case Cell.CELL_TYPE_STRING:
+        return cell.getStringCellValue();
+      case Cell.CELL_TYPE_FORMULA:
+        return getCellValue(cell.getCachedFormulaResultType(), cell);
+    }
+    return null;
+  }
 
-	private StatementBuilder createAssignStatement() {
-		return new StatementBuilder() {
+  private Number getNumericValue(int type, Cell cell)
+  {
+    switch (type)
+    {
+      case Cell.CELL_TYPE_NUMERIC:
+        if (cell instanceof XSSFCell)
+        {
+          String raw = ((XSSFCell) cell).getRawValue();
 
-			@Override
-			public Statement build(Cell cell, ARegisterPtr name) {
-				return new AssignStatement(name, getCellValue(cell.getCellType(), cell));
-			}
-		};
-	}
+          return new BigDecimal(raw);
+        }
+        return cell.getNumericCellValue();
+      case Cell.CELL_TYPE_FORMULA:
+        return getNumericValue(cell.getCachedFormulaResultType(), cell);
+      case Cell.CELL_TYPE_STRING:
+      {
+        String raw = cell.getStringCellValue();
+        if (raw == null || raw.isEmpty() || !raw.matches("0-9"))
+        {
+          // We throw this instead of the plain NumberFormatException that would've been
+          // thrown otherwise.
+          throw new IllegalArgumentException("Invalid Numeric String Cell value [" + raw + "] in Sheet(" + cell.getSheet().getSheetName() + "). Row:Column[" + cell.getRowIndex() + 1 + ":"
+              + (cell.getColumnIndex() + 1) + "]");
+        }
+        return new BigDecimal(raw);
+      }
 
-	private StatementBuilder createAddStatement() {
-		return new StatementBuilder() {
+    }
+    return BigDecimal.ZERO;
+  }
 
-			@Override
-			public Statement build(Cell cell, ARegisterPtr name) {
-				return new AddStatement(name, getCellValue(cell.getCellType(), cell));
-			}
-		};
-	}
+  private StatementBuilder createAssignStatement()
+  {
+    return new StatementBuilder()
+    {
 
-	private StatementBuilder createSubStatement() {
-		return new StatementBuilder() {
+      @Override
+      public Statement build(Cell cell, ARegisterPtr name)
+      {
+        return new AssignStatement(name, getCellValue(cell.getCellType(), cell));
+      }
+    };
+  }
 
-			@Override
-			public Statement build(Cell cell, ARegisterPtr name) {
-				return new SubStatement(name, getCellValue(cell.getCellType(), cell));
-			}
-		};
-	}
+  private StatementBuilder createAddStatement()
+  {
+    return new StatementBuilder()
+    {
 
-	private StatementBuilder createEqualsStatement() {
-		return new StatementBuilder() {
+      @Override
+      public Statement build(Cell cell, ARegisterPtr name)
+      {
+        return new AddStatement(name, getCellValue(cell.getCellType(), cell));
+      }
+    };
+  }
 
-			@Override
-			public Statement build(Cell cell, ARegisterPtr name) {
-				return new EqualsStatement(name, getCellValue(cell.getCellType(), cell));
-			}
-		};
-	}
+  private StatementBuilder createSubStatement()
+  {
+    return new StatementBuilder()
+    {
 
-	private StatementBuilder createCompareStatement(final OP op) {
-		return new StatementBuilder() {
+      @Override
+      public Statement build(Cell cell, ARegisterPtr name)
+      {
+        return new SubStatement(name, getCellValue(cell.getCellType(), cell));
+      }
+    };
+  }
 
-			@Override
-			public Statement build(Cell cell, ARegisterPtr name) {
-				return new CompareStatement(name, getNumericValue(cell.getCellType(), cell), op);
-			}
-		};
-	}
+  private StatementBuilder createEqualsStatement()
+  {
+    return new StatementBuilder()
+    {
 
-	private StatementBuilder createTableStatement() {
-		return new StatementBuilder() {
+      @Override
+      public Statement build(Cell cell, ARegisterPtr name)
+      {
+        return new EqualsStatement(name, getCellValue(cell.getCellType(), cell));
+      }
+    };
+  }
 
-			@Override
-			public Statement build(Cell cell, ARegisterPtr name) {
-				return new InvokeTableStatement(name, cell.getStringCellValue());
-			}
-		};
-	}
+  private StatementBuilder createCompareStatement(final OP op)
+  {
+    return new StatementBuilder()
+    {
 
-	private ActionTableBuilder createConditionTable(final boolean multi) {
-		return new ActionTableBuilder() {
+      @Override
+      public Statement build(Cell cell, ARegisterPtr name)
+      {
+        return new CompareStatement(name, getNumericValue(cell.getCellType(), cell), op);
+      }
+    };
+  }
 
-			@Override
-			public ActionTable build(Row argsRow, Row paramRow, Row opRow, Iterator<Row> iterator, int start, int stop) {
-				StatementTable table = new StatementTable();
-				table.setMulti(multi);
-				table.setStatements(createStatements(ExcelDecisionTableBuilder.this.conditionBuilders, argsRow, paramRow, opRow, iterator, start, stop));
-				return table;
-			}
-		};
-	}
+  private StatementBuilder createTableStatement()
+  {
+    return new StatementBuilder()
+    {
 
-	private ActionTableBuilder createStatementTable() {
-		return new ActionTableBuilder() {
+      @Override
+      public Statement build(Cell cell, ARegisterPtr name)
+      {
+        return new InvokeTableStatement(name, cell.getStringCellValue());
+      }
+    };
+  }
 
-			@Override
-			public ActionTable build(Row argsRow, Row paramRow, Row opRow, Iterator<Row> iterator, int start, int stop) {
-				StatementTable table = new StatementTable();
-				table.setMulti(true);
-				table.setStatements(createStatements(ExcelDecisionTableBuilder.this.statementBuilders, argsRow, paramRow, opRow, iterator, start, stop));
-				return table;
-			}
-		};
-	}
+  private ActionTableBuilder createConditionTable(final boolean multi)
+  {
+    return new ActionTableBuilder()
+    {
 
-	private ActionTableBuilder createAddStatementTable() {
-		return new ActionTableBuilder() {
+      @Override
+      public ActionTable build(Row argsRow, Row paramRow, Row opRow, Iterator<Row> iterator, int start, int stop)
+      {
+        StatementTable table = new StatementTable();
+        table.setMulti(multi);
+        table.setStatements(createStatements(ExcelDecisionTableBuilder.this.conditionBuilders, argsRow, paramRow, opRow, iterator, start, stop));
+        return table;
+      }
+    };
+  }
 
-			@Override
-			public ActionTable build(Row argsRow, Row paramRow, Row opRow, Iterator<Row> iterator, int start, int stop) {
-				Cell cell = argsRow.getCell(start);
-				StatementAddTable table = new StatementAddTable(cell == null ? null : new ABasicRegisterPtr(cell.getStringCellValue()));
-				table.setMulti(true);
-				table.setStatements(createStatements(ExcelDecisionTableBuilder.this.statementBuilders, argsRow, paramRow, opRow, iterator, start, stop));
-				return table;
-			}
-		};
-	}
+  private ActionTableBuilder createStatementTable()
+  {
+    return new ActionTableBuilder()
+    {
 
-	public interface StatementBuilder {
-		Statement build(Cell cell, ARegisterPtr name);
-	}
+      @Override
+      public ActionTable build(Row argsRow, Row paramRow, Row opRow, Iterator<Row> iterator, int start, int stop)
+      {
+        StatementTable table = new StatementTable();
+        table.setMulti(true);
+        table.setStatements(createStatements(ExcelDecisionTableBuilder.this.statementBuilders, argsRow, paramRow, opRow, iterator, start, stop));
+        return table;
+      }
+    };
+  }
 
-	public interface ActionTableBuilder {
-		ActionTable build(Row argsRow, Row paramRow, Row opRow, Iterator<Row> iterator, int start, int stop);
-	}
+  private ActionTableBuilder createAddStatementTable()
+  {
+    return new ActionTableBuilder()
+    {
+
+      @Override
+      public ActionTable build(Row argsRow, Row paramRow, Row opRow, Iterator<Row> iterator, int start, int stop)
+      {
+        Cell cell = argsRow.getCell(start);
+        StatementAddTable table = new StatementAddTable(cell == null ? null : new ABasicRegisterPtr(cell.getStringCellValue()));
+        table.setMulti(true);
+        table.setStatements(createStatements(ExcelDecisionTableBuilder.this.statementBuilders, argsRow, paramRow, opRow, iterator, start, stop));
+        return table;
+      }
+    };
+  }
+
+  public interface StatementBuilder
+  {
+    Statement build(Cell cell, ARegisterPtr name);
+  }
+
+  public interface ActionTableBuilder
+  {
+    ActionTable build(Row argsRow, Row paramRow, Row opRow, Iterator<Row> iterator, int start, int stop);
+  }
 }
