@@ -150,7 +150,17 @@ public class ExcelDecisionTableBuilder
 
     for (int i = tableTypeRow.getFirstCellNum(); i < tableTypeRow.getLastCellNum(); i++)
     {
-      if (!tableTypeRow.getCell(i).getStringCellValue().isEmpty())
+      Cell typeRowCell = tableTypeRow.getCell(i);
+      if (typeRowCell == null)
+      {
+        throw new NullPointerException("Sheet[" + sheet.getSheetName() + "] - Row:Col[1:" + i + "] - Cell object is null. (#columns = " + tableTypeRow.getLastCellNum() + ")");
+      }
+      String cellValue = typeRowCell.getStringCellValue();
+      if (cellValue == null)
+      {
+        throw new NullPointerException("Sheet[" + sheet.getSheetName() + "] - Row:Col[1:" + i + "] - Cell value is null.");
+      }
+      if (!cellValue.isEmpty())
       {
         indexes.add(i);
       }
